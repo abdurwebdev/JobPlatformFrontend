@@ -2,10 +2,31 @@
 import { useEffect, useState, use } from "react";
 import { api } from "@/app/services/api";
 
-export default function JobDetailPage({ params }) {
+// 1. Explicitly type the dynamic route parameters for Next.js 15+
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+// 2. Define the expected properties inside your dynamic job state item
+interface JobData {
+  id: string;
+  title: string;
+  company_name: string;
+  url: string;
+  category?: string;
+  tags?: string[];
+  job_type?: string;
+  publication_date?: string;
+  candidate_required_location?: string;
+  salary?: string;
+  description: string;
+  source?: string;
+}
+
+export default function JobDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   
-  const [job, setJob] = useState(null);
+  const [job, setJob] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,14 +65,6 @@ export default function JobDetailPage({ params }) {
       </div>
     );
   }
-
-  const formattedDate = job.publication_date 
-    ? new Date(job.publication_date).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
-      })
-    : "Active Session";
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased overflow-x-hidden flex flex-col justify-between p-6 md:p-12 relative">
@@ -102,10 +115,12 @@ export default function JobDetailPage({ params }) {
             
             {/* Preserves raw data newlines accurately for full clean layout string conversion */}
             <div className="text-white/80 text-base md:text-lg leading-relaxed font-normal whitespace-pre-wrap tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30" >
-            {job.description}
+              {job.description}
             </div>
           </div>
         </div>
+
+        {/* Right Columns (4): Parameter Metrics Sidecard panel */}
         <div className="lg:col-span-4 w-full lg:sticky lg:top-12">
           <div className="border border-white/[0.08] bg-[#111111]/60 backdrop-blur-md p-8 rounded-2xl space-y-8 relative overflow-hidden group hover:border-white/15 transition-all duration-500 shadow-xl">
             <div className="absolute -right-20 -top-20 w-40 h-40 bg-[#ff5a1f]/[0.03] rounded-full blur-3xl pointer-events-none group-hover:bg-[#ff5a1f]/[0.08] transition-all duration-500" />
