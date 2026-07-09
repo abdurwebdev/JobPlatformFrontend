@@ -2,11 +2,7 @@
 import { useEffect, useState, use } from "react";
 import { api } from "@/app/services/api";
 
-// FORCE NEXT.JS TO TREAT THIS AS A DYNAMIC REGION DURING DEPLOYMENT BUILD
-export const dynamic = "force-dynamic";
-
 export default function JobDetailPage({ params }) {
-  // Unwrapping the params Promise safely
   const resolvedParams = use(params);
   
   const [job, setJob] = useState(null);
@@ -27,7 +23,7 @@ export default function JobDetailPage({ params }) {
     if (resolvedParams?.id) {
       getJobDetails();
     }
-  }, [resolvedParams?.id]); // Added optional chaining to dependency array
+  }, [resolvedParams.id]);
 
   if (loading) {
     return (
@@ -49,7 +45,7 @@ export default function JobDetailPage({ params }) {
     );
   }
 
-  const formattedDate = job?.publication_date 
+  const formattedDate = job.publication_date 
     ? new Date(job.publication_date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -72,25 +68,25 @@ export default function JobDetailPage({ params }) {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[#ff5a1f] bg-[#ff5a1f]/10 px-3 py-1 rounded-full border border-[#ff5a1f]/20">
-                {job?.job_type || "External Asset"}
+                {job.job_type || "External Asset"}
               </span>
             </div>
             
             <div className="space-y-2">
               <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-white/50">
-                {job?.company_name}
+                {job.company_name}
               </h2>
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.95] text-white">
-                {job?.title}
+                {job.title}
               </h1>
             </div>
 
             {/* Pipeline Category Tags */}
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02]">
-                {job?.category}
+                {job.category}
               </span>
-              {job?.tags && job.tags.map((tag, i) => (
+              {job.tags && job.tags.map((tag, i) => (
                 <span key={i} className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02] text-white/40 uppercase font-mono">
                   #{tag}
                 </span>
@@ -104,12 +100,12 @@ export default function JobDetailPage({ params }) {
           <div className="space-y-6">
             <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/40">Job Overview & Requirements</h3>
             
+            {/* Preserves raw data newlines accurately for full clean layout string conversion */}
             <div className="text-white/80 text-base md:text-lg leading-relaxed font-normal whitespace-pre-wrap tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30" >
-              {job?.description}
+            {job.description}
             </div>
           </div>
         </div>
-        
         <div className="lg:col-span-4 w-full lg:sticky lg:top-12">
           <div className="border border-white/[0.08] bg-[#111111]/60 backdrop-blur-md p-8 rounded-2xl space-y-8 relative overflow-hidden group hover:border-white/15 transition-all duration-500 shadow-xl">
             <div className="absolute -right-20 -top-20 w-40 h-40 bg-[#ff5a1f]/[0.03] rounded-full blur-3xl pointer-events-none group-hover:bg-[#ff5a1f]/[0.08] transition-all duration-500" />
@@ -120,19 +116,19 @@ export default function JobDetailPage({ params }) {
             <div className="grid grid-cols-2 gap-y-6 gap-x-4 relative z-10 text-xs">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-1">Compensation</p>
-                <p className="text-base font-semibold tracking-tight text-white">{job?.salary || "Undisclosed"}</p>
+                <p className="text-base font-semibold tracking-tight text-white">{job.salary || "Undisclosed"}</p>
               </div>
               <div>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-white/40 mb-1">Jurisdiction</p>
-                <p className="text-base font-semibold tracking-tight text-white uppercase">{job?.candidate_required_location || "Worldwide"}</p>
+                <p className="text-base font-semibold tracking-tight text-white uppercase">{job.candidate_required_location || "Worldwide"}</p>
               </div>
               <div>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-white/40 mb-1">Domain Class</p>
-                <p className="text-base font-semibold tracking-tight text-white">{job?.category || "General"}</p>
+                <p className="text-base font-semibold tracking-tight text-white">{job.category || "General"}</p>
               </div>
               <div>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-white/40 mb-1">Pipeline Hub</p>
-                <p className="text-base font-semibold tracking-tight text-white">{job?.source || "External"}</p>
+                <p className="text-base font-semibold tracking-tight text-white">{job.source || "External"}</p>
               </div>
             </div>
 
@@ -140,7 +136,7 @@ export default function JobDetailPage({ params }) {
 
             {/* External Gateway Direct Link Action */}
             <a 
-              href={job?.url || "#"} 
+              href={job.url} 
               target="_blank" 
               rel="noopener noreferrer"
               className="relative flex items-center justify-between w-full bg-white text-black font-bold text-xs py-4 px-6 rounded-xl overflow-hidden group/btn transition-transform active:scale-[0.98] hover:bg-[#ff5a1f] hover:text-white duration-300"
