@@ -2,10 +2,18 @@
 import { useEffect, useState, use } from "react";
 import { api } from "@/app/services/api";
 
-export default function JobDetailPage({ params }) {
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+// Added the ': PageProps' type annotation right here
+export default function JobDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   
-  const [job, setJob] = useState(null);
+  // Explicitly typing your state prevents downstream type errors
+  const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,16 +63,10 @@ export default function JobDetailPage({ params }) {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased overflow-x-hidden flex flex-col justify-between p-6 md:p-12 relative">
-      {/* Structural Thin Gridline Background lines */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full border-l border-r border-white/[0.02] pointer-events-none max-w-7xl mx-auto" />
 
-      {/* Main Structural Showcase Layout */}
       <section className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 pt-16 pb-24 items-start">
-        
-        {/* Left Columns (8): Typography Hero Header + Long-form Data Block */}
         <div className="lg:col-span-8 space-y-12">
-          
-          {/* Header Identity Block */}
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[#ff5a1f] bg-[#ff5a1f]/10 px-3 py-1 rounded-full border border-[#ff5a1f]/20">
@@ -81,12 +83,11 @@ export default function JobDetailPage({ params }) {
               </h1>
             </div>
 
-            {/* Pipeline Category Tags */}
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02]">
                 {job.category}
               </span>
-              {job.tags && job.tags.map((tag, i) => (
+              {job.tags && job.tags.map((tag: string, i: number) => (
                 <span key={i} className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02] text-white/40 uppercase font-mono">
                   #{tag}
                 </span>
@@ -96,23 +97,20 @@ export default function JobDetailPage({ params }) {
 
           <hr className="border-white/[0.04]" />
 
-          {/* Dynamic Description Segment */}
           <div className="space-y-6">
             <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/40">Job Overview & Requirements</h3>
-            
-            {/* Preserves raw data newlines accurately for full clean layout string conversion */}
             <div className="text-white/80 text-base md:text-lg leading-relaxed font-normal whitespace-pre-wrap tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30" >
-            {job.description}
+              {job.description}
             </div>
           </div>
         </div>
+
         <div className="lg:col-span-4 w-full lg:sticky lg:top-12">
           <div className="border border-white/[0.08] bg-[#111111]/60 backdrop-blur-md p-8 rounded-2xl space-y-8 relative overflow-hidden group hover:border-white/15 transition-all duration-500 shadow-xl">
             <div className="absolute -right-20 -top-20 w-40 h-40 bg-[#ff5a1f]/[0.03] rounded-full blur-3xl pointer-events-none group-hover:bg-[#ff5a1f]/[0.08] transition-all duration-500" />
             
             <h4 className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#ff5a1f]">Parameter Metrics</h4>
 
-            {/* Data Table Core View */}
             <div className="grid grid-cols-2 gap-y-6 gap-x-4 relative z-10 text-xs">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-1">Compensation</p>
@@ -134,16 +132,13 @@ export default function JobDetailPage({ params }) {
 
             <hr className="border-white/[0.06]" />
 
-            {/* External Gateway Direct Link Action */}
             <a 
               href={job.url} 
               target="_blank" 
               rel="noopener noreferrer"
               className="relative flex items-center justify-between w-full bg-white text-black font-bold text-xs py-4 px-6 rounded-xl overflow-hidden group/btn transition-transform active:scale-[0.98] hover:bg-[#ff5a1f] hover:text-white duration-300"
             >
-              <span className="relative z-10">
-                INITIALIZE EXTERNAL PROCESS
-              </span>
+              <span className="relative z-10">INITIALIZE EXTERNAL PROCESS</span>
               <svg 
                 className="w-3.5 h-3.5 transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform duration-300 relative z-10 stroke-current" 
                 fill="none" 
@@ -155,7 +150,6 @@ export default function JobDetailPage({ params }) {
             </a>
           </div>
         </div>
-
       </section>
     </main>
   );
