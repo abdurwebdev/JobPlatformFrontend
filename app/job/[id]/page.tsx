@@ -66,6 +66,9 @@ export default function JobDetailPage({ params }: PageProps) {
     );
   }
 
+  // Detects if the description data is incoming raw HTML or standard plaintext formatting
+  const isHtmlDescription = /<\/?[a-z][\s\S]*>/i.test(job.description);
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased overflow-x-hidden flex flex-col justify-between p-6 md:p-12 relative">
       {/* Structural Thin Gridline Background lines */}
@@ -97,9 +100,9 @@ export default function JobDetailPage({ params }: PageProps) {
             {/* Pipeline Category Tags */}
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02]">
-                {job.category}
+                {job.category || "General"}
               </span>
-              {job.tags && job.tags.map((tag, i) => (
+              {job.tags && job.tags.filter(Boolean).map((tag, i) => (
                 <span key={i} className="border border-white/10 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white/[0.02] text-white/40 uppercase font-mono">
                   #{tag}
                 </span>
@@ -113,10 +116,17 @@ export default function JobDetailPage({ params }: PageProps) {
           <div className="space-y-6">
             <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/40">Job Overview & Requirements</h3>
             
-            {/* Preserves raw data newlines accurately for full clean layout string conversion */}
-            <div className="text-white/80 text-base md:text-lg leading-relaxed font-normal whitespace-pre-wrap tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30" >
-              {job.description}
-            </div>
+            {/* Handles raw text safely or parses HTML cleanly with proper fallback formatting layout layout styling parameters */}
+            {isHtmlDescription ? (
+              <div 
+                className="text-white/80 text-base md:text-lg leading-relaxed font-normal tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30 prose prose-invert prose-sm md:prose-base [&&_ul]:list-disc [&&_ol]:list-decimal [&&_ul]:pl-5 [&&_ol]:pl-5 [&&_li]:mb-1"
+                dangerouslySetInnerHTML={{ __html: job.description }}
+              />
+            ) : (
+              <div className="text-white/80 text-base md:text-lg leading-relaxed font-normal whitespace-pre-wrap tracking-wide space-y-4 max-w-3xl selection:bg-[#ff5a1f]/30">
+                {job.description}
+              </div>
+            )}
           </div>
         </div>
 
