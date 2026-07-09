@@ -120,7 +120,7 @@ export default function JobsGridPage() {
       {/* Grid Footer Interface */}
       <footer className="w-full flex justify-between items-center text-[9px] uppercase tracking-[0.25em] text-white/20 pt-16 mt-12 border-t border-white/[0.03]">
         <p>© 2026 Index Corp.</p>
-        <p>Pipeline Connected Stream</p>
+        <p>Pipeline Connected Streams</p>
       </footer>
     </main>
   );
