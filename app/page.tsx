@@ -3,14 +3,26 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "./services/api";
 
+// Explicitly type the individual job object structural fields
+interface JobItem {
+  id: string | number;
+  title: string;
+  company_name: string;
+  job_type?: string;
+  category?: string;
+  salary?: string;
+}
+
 export default function JobsGridPage() {
-  const [jobs, setJobs] = useState([]);
+  // Initialize state explicitly with the JobItem generic array type
+  const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
   useEffect(() => {
     async function fetchJobsData() {
       try {
-        let response = await api.get("/job/all");
+        const response = await api.get("/job/all");
         // Safely handles either a raw array or an object containing a jobs array
         const data = Array.isArray(response.data) ? response.data : response.data.jobs || [];
         setJobs(data);
@@ -34,7 +46,7 @@ export default function JobsGridPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased p-6 md:p-16 max-w-7xl mx-auto flex flex-col justify-between min-h-screen">
+    <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased p-6 md:p-16 max-w-7xl mx-auto flex flex-col justify-between">
       
       {/* Grid Top Bar Header */}
       <header className="w-full flex justify-between items-end border-b border-white/[0.04] pb-8 mb-12">
@@ -54,9 +66,9 @@ export default function JobsGridPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch flex-1">
-          {jobs.map((job) => (
+          {jobs.map((job: JobItem) => (
             <div
-            onClick={()=> router.push(`/job/${job.id}`)}
+              onClick={() => router.push(`/job/${job.id}`)}
               key={job.id}
               className="group relative flex flex-col justify-between p-8 rounded-2xl bg-[#111111]/40 border border-white/[0.06] backdrop-blur-sm cursor-pointer hover:bg-[#111111]/80 hover:border-white/15 transition-all duration-500 ease-out hover:-translate-y-1"
             >
@@ -70,7 +82,7 @@ export default function JobsGridPage() {
                     {job.company_name}
                   </span>
                   <span className="text-[9px] uppercase tracking-[0.15em] font-semibold text-[#ff5a1f] bg-[#ff5a1f]/10 px-2.5 py-0.5 rounded-full">
-                    {job.job_type}
+                    {job.job_type || "External"}
                   </span>
                 </div>
 
@@ -81,7 +93,7 @@ export default function JobsGridPage() {
                 {/* Tokens/Tags Array */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   <span className="text-[10px] px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.05] text-white/60">
-                    {job.category}
+                    {job.category || "General"}
                   </span>
                 </div>
               </div>
