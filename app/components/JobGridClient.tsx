@@ -8,6 +8,8 @@ import { GridFilters } from "./GridFilters";
 import { JobCard } from "./JobCard";
 import { filterAndSortJobs, extractUniqueFields } from "./utils";
 
+export const dynamic = "force-dynamic";
+
 export default function JobsGridClient() {
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
