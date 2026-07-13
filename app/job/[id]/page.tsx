@@ -36,19 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title,
-    description: cleanDescription,
-    openGraph: {
-      title,
-      description: cleanDescription,
-      type: "article",
-      url: `https://job-platform-frontend-62ud.vercel.app/api/job/${resolvedParams.id}`,
-    },
-   // Find your metadata return statement and update the twitter block to look like this:
-twitter: {
-  card: "summary_large_image", // Must be a valid literal type
-  title: title,
-  description: "This is the Rozgar App. " + (cleanDescription || ""), // Combine your custom text here
-},
+    description: cleanDescription
   };
 }
 
