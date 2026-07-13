@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { api } from "../services/api"; // Path adjusted to locate your custom Axios engine asset
+import { api } from "../services/api"; 
 import { JobItem } from "./types";
 import { GridHeader } from "./GridHeader";
 import { GridFilters } from "./GridFilters";
@@ -23,7 +23,14 @@ export default function JobsGridClient() {
   useEffect(() => {
     async function fetchJobsData() {
       try {
-        const response = await api.get("/job/all");
+        // Added ?t=${Date.now()} to break browser and serverless response caching
+        const response = await api.get(`/job/all?t=${Date.now()}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        });
         const data = Array.isArray(response.data) ? response.data : response.data.jobs || [];
         setJobs(data);
       } catch (error) {
