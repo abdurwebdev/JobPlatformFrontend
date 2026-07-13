@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: "Rozgar App", // Fixes the anonymous card warning on Discord
     images: [
       {
-        url: "https://ibb.co/kgLy5Swr", // Replace with your actual preview file path
+        url: "https://i.ibb.co/jvC5brQx/Screenshot-2026-07-13-160345.jpg", // Replace with your actual preview file path
         width: 1200,
         height: 630,
         alt: "Rozgar App Job Board Terminal Preview",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image", // Forces full-width visual layout on X feeds
     title: "Explore Tech Careers & Remote Openings | Rozgar App",
     description: "Browse hundreds of verified operational profiles, engineering roles, and global remote opportunities on Rozgar App.",
-    images: ["https://ibb.co/kgLy5Swr"],
+    images: ["https://i.ibb.co/jvC5brQx/Screenshot-2026-07-13-160345.jpg"],
   },
 };
 
