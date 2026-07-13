@@ -9,6 +9,21 @@ interface JobDetailClientProps {
   initialData: JobData | null;
 }
 
+// Utility to scrub empty layouts, repetitive spacers, and unescaped HTML entities
+function cleanHtmlContent(htmlContent: string | undefined): string {
+  if (!htmlContent) return "";
+  
+  return htmlContent
+    // 1. Strip paragraphs that contain only whitespace, line breaks, or &nbsp;
+    .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, "")
+    // 2. Replace standalone or residual non-breaking spaces with clean single spaces
+    .replace(/&nbsp;/gi, " ")
+    // 3. Fix unescaped HTML ampersands if they surface in the raw body text
+    .replace(/&amp;/gi, "&")
+    // 4. Reduce excessive consecutive line breaks down to an acceptable spacing layout
+    .replace(/(<br\s*\/?>){3,}/gi, "<br><br>");
+}
+
 export default function JobDetailClient({ initialData }: JobDetailClientProps) {
   const [job, setJob] = useState<JobData | null>(initialData);
 
@@ -20,7 +35,9 @@ export default function JobDetailClient({ initialData }: JobDetailClientProps) {
   // Handle client-side tab sync during dynamic routing updates
   useEffect(() => {
     if (job?.title) {
-      document.title = `${job.title} – ${job.company_name || "Job Platform"}`;
+      // Clean ampersands out of the browser window title string tab bar
+      const cleanTitle = job.title.replace(/&amp;/gi, "&");
+      document.title = `${cleanTitle} – ${job.company_name || "Job Platform"}`;
     }
   }, [job]);
 
@@ -34,15 +51,21 @@ export default function JobDetailClient({ initialData }: JobDetailClientProps) {
     );
   }
 
+  // Generate cleaned instances of structural fields prior to rendering
+  const cleanTitle = job.title.replace(/&amp;/gi, "&");
+  const cleanedDescription = cleanHtmlContent(job.description);
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased overflow-x-hidden flex flex-col justify-between p-6 md:p-12 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full border-l border-r border-white/[0.02] pointer-events-none max-w-7xl mx-auto" />
       
       <section className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 pt-16 pb-24 items-start">
         <div className="lg:col-span-8 space-y-12">
-          <JobHeader title={job.title} companyName={job.company_name} jobType={job.job_type} category={job.category} tags={job.tags} />
+          {/* Passed the normalized string directly to JobHeader */}
+          <JobHeader title={cleanTitle} companyName={job.company_name} jobType={job.job_type} category={job.category} tags={job.tags} />
           <hr className="border-white/[0.04]" />
-          <JobBody description={job.description} />
+          {/* Passed the compressed layout text down into JobBody */}
+          <JobBody description={cleanedDescription} />
         </div>
 
         <div className="lg:col-span-4 w-full lg:sticky lg:top-12">
