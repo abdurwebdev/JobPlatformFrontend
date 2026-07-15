@@ -2,16 +2,31 @@ import Link from "next/link";
 import { JobItem } from "./types";
 
 export function JobCard({ job }: { job: JobItem }) {
+  // Helper to normalize the job type string
+  const formatJobType = (type: string) => {
+    return type
+      .replace(/_/g, " ")      // Replace underscores with spaces
+      .replace(/\s+/g, "-")    // Replace spaces with hyphens
+      .toUpperCase();          // Ensure consistent casing
+  };
+
   return (
     <Link
       href={`/job/${job.id}`}
       className="group relative flex flex-col justify-between p-8 rounded-2xl bg-[#111111]/40 border border-white/[0.06] backdrop-blur-sm hover:bg-[#111111]/80 hover:border-white/15 transition-all duration-500 ease-out hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#ff5a1f]/50 outline-none"
     >
       <div className="space-y-6 relative z-10">
-        <div className="flex justify-between items-center w-full">
-          <span className="text-[10px] uppercase font-medium text-white/40">{job.company_name}</span>
-          <span className="text-[9px] uppercase font-semibold text-[#ff5a1f] bg-[#ff5a1f]/10 px-2.5 py-0.5 rounded-full">
-            {job.job_type || "External"}
+        <div className="flex justify-between items-center w-full gap-4">
+          <span 
+            className="text-[10px] uppercase font-medium text-white/40 block truncate min-w-0 flex-1"
+            title={job.company_name}
+          >
+            {job.company_name}
+          </span>
+          
+          {/* Formatted Job Type */}
+          <span className="text-[9px] uppercase font-semibold text-[#ff5a1f] bg-[#ff5a1f]/10 px-2.5 py-0.5 rounded-full shrink-0">
+            {formatJobType(job.job_type || "External")}
           </span>
         </div>
 
@@ -19,6 +34,7 @@ export function JobCard({ job }: { job: JobItem }) {
           {job.title}
         </h3>
 
+        {/* ... rest of your code ... */}
         <div className="flex flex-wrap gap-1.5 pt-1">
           <span className="text-[10px] px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.05] text-white/60">
             {job.category || "General"}

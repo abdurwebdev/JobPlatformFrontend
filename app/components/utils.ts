@@ -8,14 +8,24 @@ interface FilterParams {
   sortBy: string;
 }
 
+/**
+ * Normalizes job type strings to ensure "full-time", "full_time", and "full time" 
+ * are all treated as "full time".
+ */
+const normalizeJobType = (type?: string) => 
+  type?.trim().replace(/[-_]/g, ' ').toLowerCase() || "";
+
 export function extractUniqueFields(jobs: JobItem[]) {
   const categories = jobs.map((j) => j.category?.trim()).filter((c): c is string => !!c);
-  const types = jobs.map((j) => j.job_type?.trim()).filter((t): t is string => !!t);
+  
+  // Use the helper to normalize types for the dropdown list
+  const types = jobs.map((j) => normalizeJobType(j.job_type)).filter((t) => t !== "");
+  
   const locations = jobs.map((j) => j.candidate_required_location?.trim()).filter((l): l is string => !!l);
 
   return {
     categories: Array.from(new Set(categories)),
-    types: Array.from(new Set(types)),
+    types: Array.from(new Set(types)), // Now contains only unique, clean values
     locations: Array.from(new Set(locations)),
   };
 }
@@ -37,17 +47,19 @@ export function filterAndSortJobs(jobs: JobItem[], filters: FilterParams): JobIt
     result = result.filter((j) => j.category?.toLowerCase() === filters.selectedCategory.toLowerCase());
   }
 
+  // UPDATED: Use the same normalization helper for filtering
   if (filters.selectedType !== "all") {
-    result = result.filter((j) => j.job_type?.toLowerCase() === filters.selectedType.toLowerCase());
+    result = result.filter((j) => normalizeJobType(j.job_type) === filters.selectedType.toLowerCase());
   }
 
   if (filters.selectedLocation !== "all") {
     result = result.filter((j) => j.candidate_required_location?.toLowerCase() === filters.selectedLocation.toLowerCase());
   }
 
+  // Sorting logic...
   if (filters.sortBy === "salary") {
     const parseMaxSalary = (salaryStr?: string) => {
-      if (!salaryStr) return 0;
+      if (!salaryStr || salaryStr === "Undisclosed") return 0;
       const cleanStr = salaryStr.toLowerCase().replace(/k/g, "000");
       const parts = cleanStr.split("-");
       const highRange = parts[parts.length - 1];
@@ -55,7 +67,7 @@ export function filterAndSortJobs(jobs: JobItem[], filters: FilterParams): JobIt
     };
     result.sort((a, b) => parseMaxSalary(b.salary) - parseMaxSalary(a.salary));
   } else if (filters.sortBy === "alphabetical") {
-    result.sort((a, b) => a.title.localeCompare(b.title));
+    result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
   }
 
   return result;
