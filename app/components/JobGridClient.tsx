@@ -1,70 +1,67 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { api } from "../services/api"; // Path adjusted to locate your custom Axios engine asset
+import { api } from "../services/api";
 import { JobItem } from "./types";
 import { GridHeader } from "./GridHeader";
 import { GridFilters } from "./GridFilters";
 import { JobCard } from "./JobCard";
-import { filterAndSortJobs, extractUniqueFields } from "./utils";
+import { extractUniqueFields } from "./utils"; // Removed filterAndSortJobs
 
 export const dynamic = "force-dynamic";
 
 export default function JobsGridClient() {
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [total, setTotal] = useState(0);
+  
+  // State
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
- useEffect(() => {
-  async function fetchJobsData() {
-    try {
-      // Adding a dynamic timestamp guarantees Vercel sees this as a unique request
-      const response = await api.get(`/job/all?_cb=${new Date().getTime()}`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-        }
-      });
-      const data = Array.isArray(response.data) ? response.data : response.data.jobs || [];
-      setJobs(data);
-    } catch (error) {
-      console.error("Failed to query jobs index:", error);
-    } finally {
-      setLoading(false);
+  const PAGE_SIZE = 20;
+
+  useEffect(() => {
+    async function fetchJobs() {
+      setLoading(true);
+      try {
+        // Build query string based on state
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: PAGE_SIZE.toString(),
+          search: searchQuery,
+          category: selectedCategory !== "all" ? selectedCategory : "",
+          type: selectedType !== "all" ? selectedType : "",
+          location: selectedLocation !== "all" ? selectedLocation : "",
+          sort: sortBy
+        });
+
+        const res = await api.get(`/job/all?${params.toString()}`);
+        setJobs(res.data.jobs);
+        setTotal(res.data.total);
+      } catch (error) {
+        console.error("Failed to fetch jobs:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchJobsData();
-}, []);
+    fetchJobs();
+  }, [page, searchQuery, selectedCategory, selectedType, selectedLocation, sortBy]);
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, selectedCategory, selectedType, selectedLocation, sortBy]);
 
   const uniqueFields = useMemo(() => extractUniqueFields(jobs), [jobs]);
 
-  const filteredJobs = useMemo(() => {
-    return filterAndSortJobs(jobs, {
-      searchQuery,
-      selectedCategory,
-      selectedType,
-      selectedLocation,
-      sortBy,
-    });
-  }, [jobs, searchQuery, selectedCategory, selectedType, selectedLocation, sortBy]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-[#666] tracking-[0.3em] text-xs uppercase animate-pulse">
-          Connecting Archive...
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-[#0a0a0a] selection:bg-[#ff5a1f] selection:text-white text-[#f5f5f5] font-sans antialiased p-6 md:p-16 max-w-7xl mx-auto flex flex-col w-full">
-      <GridHeader totalCount={jobs.length} />
+      <GridHeader totalCount={total} />
 
       <GridFilters
         searchQuery={searchQuery}
@@ -83,17 +80,36 @@ export default function JobsGridClient() {
       />
 
       <div className="w-full flex-1 flex flex-col justify-start">
-        {filteredJobs.length === 0 ? (
+        {loading ? (
+           <div className="text-center p-10 text-white/40">Loading Jobs...</div>
+        ) : jobs.length === 0 ? (
           <div className="w-full border border-dashed border-white/10 rounded-2xl p-16 text-center text-white/40 text-sm font-mono uppercase tracking-wider">
-            No matching operational profiles found on active query parameters.
+            No matching operational profiles found.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch w-full">
-            {filteredJobs.map((job) => (
+            {jobs.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
         )}
+      </div>
+
+      {/* Pagination UI */}
+      <div className="flex items-center justify-center gap-6 mt-12 font-mono text-sm">
+        <button 
+          disabled={page === 1 || loading} 
+          onClick={() => setPage(p => p - 1)}
+          className="px-4 py-2 border border-white/10 rounded-lg hover:bg-white/5 disabled:opacity-30"
+        >PREV</button>
+        
+        <span className="text-white/40">PAGE {page} OF {Math.max(1, Math.ceil(total / PAGE_SIZE))}</span>
+        
+        <button 
+          disabled={page >= Math.ceil(total / PAGE_SIZE) || loading} 
+          onClick={() => setPage(p => p + 1)}
+          className="px-4 py-2 border border-white/10 rounded-lg hover:bg-white/5 disabled:opacity-30"
+        >NEXT</button>
       </div>
     </main>
   );
