@@ -63,7 +63,7 @@ export default function JobsGridClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-sans antialiased p-6 md:p-16 max-w-7xl mx-auto flex flex-col w-full">
+    <main className="min-h-screen bg-[#0a0a0a] selection:bg-[#ff5a1f] selection:text-white text-[#f5f5f5] font-sans antialiased p-6 md:p-16 max-w-7xl mx-auto flex flex-col w-full">
       <GridHeader totalCount={jobs.length} />
 
       <GridFilters
